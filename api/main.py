@@ -232,8 +232,13 @@ async def health():
 
 # ─── Static frontend ──────────────────────────────────────────────────────────
 
-app.mount("/assets", StaticFiles(directory="ui/dist/assets"), name="assets")
+@app.get("/")
+async def serve_root():
+    return FileResponse("ui/dist/index.html")
 
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
+    # Only serve index.html for non-API routes
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404)
     return FileResponse("ui/dist/index.html")

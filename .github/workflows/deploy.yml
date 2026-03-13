@@ -51,7 +51,7 @@ jobs:
             --cpu 1 \
             --min-instances 0 \
             --max-instances 5 \
-            --set-env-vars "APOLLO_API_KEY=${{ secrets.APOLLO_API_KEY }}" \
+            --set-env-vars "ENRICHLAYER_KEY=${{ secrets.ENRICHLAYER_KEY }}" \
             --port 8080 \
             --timeout 60
 
