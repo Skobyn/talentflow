@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalentFlow — Hiring Intelligence</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1a1a2e;
+      --accent: #4f46e5;
+      --accent-light: #eef2ff;
+      --accent-hover: #4338ca;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --bg: #ffffff;
+      --card-bg: #f9fafb;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 18px;
+    }
+    .brand { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .brand span { color: var(--accent); }
+    .tagline { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+    /* ── Main ── */
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .hero h1 {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Search card ── */
+    .search-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 32px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .search-row input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--bg);
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    .search-row input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+    .search-row input::placeholder { color: #9ca3af; }
+
+    .btn-primary {
+      padding: 12px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled {
+      opacity: 0.6; cursor: not-allowed; transform: none;
+    }
+
+    /* ── Time window ── */
+    .time-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .time-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .pill {
+      padding: 6px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--muted);
+      background: var(--bg);
+      transition: all 0.15s;
+    }
+    .pill:hover { border-color: var(--accent); color: var(--accent); }
+    .pill.active {
+      background: var(--accent-light);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .custom-months {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .custom-months.show { display: flex; }
+    .custom-months input {
+      width: 60px;
+      padding: 6px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      text-align: center;
+      outline: none;
+    }
+    .custom-months input:focus { border-color: var(--accent); }
+    .custom-months span { font-size: 13px; color: var(--muted); }
+
+    /* ── Loading ── */
+    .loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 48px;
+      text-align: center;
+    }
+    .loading.show { display: flex; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 14px; color: var(--muted); }
+    .loading-steps { font-size: 13px; color: #9ca3af; }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.show { display: block; }
+
+    .results-header {
+      margin-bottom: 20px;
+    }
+    .results-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .results-meta {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .demo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .source-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .source-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.15s;
+    }
+    .source-card:hover { box-shadow: var(--shadow-md); }
+
+    .rank {
+      font-size: 13px;
+      font-weight: 700;
+      color: #9ca3af;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .rank.top1 { color: #f59e0b; }
+    .rank.top2 { color: #6b7280; }
+    .rank.top3 { color: #b45309; }
+
+    .source-info { flex: 1; min-width: 0; }
+    .source-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .source-bar-wrap {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .source-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    }
+    .source-card:nth-child(1) .source-bar { background: #4f46e5; }
+    .source-card:nth-child(2) .source-bar { background: #7c3aed; }
+    .source-card:nth-child(3) .source-bar { background: #6d28d9; }
+
+    .source-stats {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .pct {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .count {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── Error ── */
+    .error-card {
+      display: none;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 20px 24px;
+      color: #991b1b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .error-card.show { display: block; }
+    .error-card strong { font-weight: 700; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .empty p { font-size: 14px; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #9ca3af;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚡</div>
+  <div>
+    <div class="brand">Talent<span>Flow</span></div>
+  </div>
+  <div class="tagline">Hiring Intelligence</div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Where are they hiring from?</h1>
+    <p>Enter any company name to see where their recent hires came from — ranked by previous employer.</p>
+  </div>
+
+  <div class="search-card">
+    <div class="search-row">
+      <input
+        type="text"
+        id="companyInput"
+        placeholder="e.g. Paylocity, Salesforce, Stripe…"
+        autocomplete="off"
+        autofocus
+      />
+      <button class="btn-primary" id="searchBtn" onclick="runSearch()">
+        Analyze →
+      </button>
+    </div>
+
+    <div class="time-label">Time window</div>
+    <div class="time-pills">
+      <div class="pill" data-months="3" onclick="selectPill(this)">3 months</div>
+      <div class="pill active" data-months="6" onclick="selectPill(this)">6 months</div>
+      <div class="pill" data-months="12" onclick="selectPill(this)">12 months</div>
+      <div class="pill" data-months="custom" onclick="selectPill(this)">Custom</div>
+      <div class="custom-months" id="customWrap">
+        <input type="number" id="customMonths" min="1" max="24" value="9" />
+        <span>months</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div>
+      <div class="loading-text" id="loadingText">Searching Apollo for recent hires…</div>
+      <div class="loading-steps" id="loadingStep">Fetching employment history</div>
+    </div>
+  </div>
+
+  <div class="error-card" id="errorCard"></div>
+
+  <div id="results">
+    <div class="results-header">
+      <div class="results-title" id="resultsTitle"></div>
+      <div class="results-meta" id="resultsMeta"></div>
+    </div>
+    <div class="source-list" id="sourceList"></div>
+  </div>
+</main>
+
+<footer>TalentFlow · Powered by Apollo.io · Data for informational purposes only</footer>
+
+<script>
+  let selectedMonths = 6;
+  let loadingTimer = null;
+
+  function selectPill(el) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    const val = el.dataset.months;
+    const customWrap = document.getElementById('customWrap');
+    if (val === 'custom') {
+      customWrap.classList.add('show');
+      selectedMonths = parseInt(document.getElementById('customMonths').value) || 6;
+    } else {
+      customWrap.classList.remove('show');
+      selectedMonths = parseInt(val);
+    }
+  }
+
+  document.getElementById('customMonths').addEventListener('input', function() {
+    selectedMonths = parseInt(this.value) || 6;
+  });
+
+  document.getElementById('companyInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') runSearch();
+  });
+
+  function setLoading(on) {
+    const el = document.getElementById('loading');
+    if (on) {
+      el.classList.add('show');
+      // Cycle loading messages
+      const steps = [
+        ['Searching Apollo for recent hires…', 'Fetching employment history'],
+        ['Analyzing job transitions…', 'Mapping previous employers'],
+        ['Aggregating hire sources…', 'Ranking by frequency'],
+        ['Almost there…', 'Building your report'],
+      ];
+      let i = 0;
+      loadingTimer = setInterval(() => {
+        i = (i + 1) % steps.length;
+        document.getElementById('loadingText').textContent = steps[i][0];
+        document.getElementById('loadingStep').textContent = steps[i][1];
+      }, 2200);
+    } else {
+      el.classList.remove('show');
+      if (loadingTimer) clearInterval(loadingTimer);
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorCard');
+    el.innerHTML = `<strong>⚠️ ${msg}</strong>`;
+    el.classList.add('show');
+  }
+
+  function hideError() {
+    document.getElementById('errorCard').classList.remove('show');
+  }
+
+  function renderResults(data) {
+    document.getElementById('results').classList.add('show');
+
+    const windowLabel = data.time_window_months === 1
+      ? '1 month'
+      : `${data.time_window_months} months`;
+
+    document.getElementById('resultsTitle').textContent =
+      `Hiring sources for ${data.company}`;
+
+    let meta = `Last ${windowLabel} · ${data.total_hires_analyzed} hires analyzed · As of ${data.as_of}`;
+    let metaHtml = `<span>${meta}</span>`;
+    if (data.is_demo) {
+      metaHtml += `<span class="demo-badge">🟡 Demo data</span>`;
+    }
+    document.getElementById('resultsMeta').innerHTML = metaHtml;
+
+    const list = document.getElementById('sourceList');
+    list.innerHTML = '';
+
+    if (!data.sources || data.sources.length === 0) {
+      list.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">🔍</div>
+          <h3>No source data found</h3>
+          <p>No previous employer history found for recent hires at this company.</p>
+        </div>`;
+      return;
+    }
+
+    const maxPct = data.sources[0]?.percentage || 1;
+
+    data.sources.forEach((s, i) => {
+      const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+      const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+      const barWidth = Math.round((s.percentage / maxPct) * 100);
+
+      const card = document.createElement('div');
+      card.className = 'source-card';
+      card.innerHTML = `
+        <div class="rank ${rankClass}">${rankLabel}</div>
+        <div class="source-info">
+          <div class="source-name">${escHtml(s.company)}</div>
+          <div class="source-bar-wrap">
+            <div class="source-bar" style="width: 0%" data-width="${barWidth}%"></div>
+          </div>
+        </div>
+        <div class="source-stats">
+          <div class="pct">${s.percentage}%</div>
+          <div class="count">${s.count} hire${s.count !== 1 ? 's' : ''}</div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+
+    // Animate bars
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        document.querySelectorAll('.source-bar').forEach(bar => {
+          bar.style.width = bar.dataset.width;
+        });
+      }, 50);
+    });
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function runSearch() {
+    const company = document.getElementById('companyInput').value.trim();
+    if (!company) {
+      document.getElementById('companyInput').focus();
+      return;
+    }
+
+    // Custom pill months
+    const activePill = document.querySelector('.pill.active');
+    if (activePill?.dataset.months === 'custom') {
+      selectedMonths = parseInt(document.getElementById('customMonths').value) || 6;
+    }
+
+    hideError();
+    document.getElementById('results').classList.remove('show');
+    document.getElementById('sourceList').innerHTML = '';
+    document.getElementById('searchBtn').disabled = true;
+    setLoading(true);
+
+    try {
+      const url = `/api/hires?company=${encodeURIComponent(company)}&months=${selectedMonths}`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        throw new Error(data.detail || `Error ${resp.status}`);
+      }
+
+      renderResults(data);
+    } catch (err) {
+      showError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+      document.getElementById('searchBtn').disabled = false;
+    }
+  }
+</script>
+</body>
+</html>
